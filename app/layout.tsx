@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "BerLabs — Dispatches for the curious",
   description: "A thoughtful newsletter about AI, the internet, and what comes next.",
-  metadataBase: new URL("https://berlabs.dev"),
+  metadataBase: new URL("https://news.berlabs.dev"),
   alternates: {
     canonical: "/",
   },
