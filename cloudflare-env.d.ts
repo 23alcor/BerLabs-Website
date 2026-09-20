@@ -5,5 +5,7 @@ declare namespace Cloudflare {
     MAILGUN_API_KEY?: string;
     MAILGUN_DOMAIN?: string;
     SITE_ORIGIN?: string;
+    TURNSTILE_SECRET?: string;
+    TURNSTILE_SITE_KEY?: string;
   }
 }

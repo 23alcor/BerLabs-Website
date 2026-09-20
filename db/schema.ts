@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const subscribers = sqliteTable("subscribers", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -12,3 +12,18 @@ export const subscribers = sqliteTable("subscribers", {
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const signupAttempts = sqliteTable(
+  "signup_attempts",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    subjectHash: text("subject_hash").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_signup_attempts_subject_created_at").on(
+      table.subjectHash,
+      table.createdAt,
+    ),
+  ],
+);

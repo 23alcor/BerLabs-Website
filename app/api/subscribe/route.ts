@@ -1,12 +1,17 @@
 import { env } from "cloudflare:workers";
 import { createConfirmationToken, hashConfirmationToken } from "@/lib/confirmation";
 import { sendBerLabsEmail } from "@/lib/mailgun";
+import { hashValue } from "@/lib/confirmation";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
   try {
-    const { email: submittedEmail } = (await request.json()) as { email?: string };
+    const { email: submittedEmail, turnstileToken } = (await request.json()) as {
+      email?: string;
+      turnstileToken?: string;
+    };
     const email = submittedEmail?.trim().toLowerCase() ?? "";
 
     if (!emailPattern.test(email) || email.length > 254) {
@@ -14,6 +19,38 @@ export async function POST(request: Request) {
     }
 
     if (!env.DB) throw new Error("Subscriber storage is unavailable.");
+    if (!turnstileToken || turnstileToken.length > 2048) {
+      return Response.json({ error: "Please complete the security check." }, { status: 400 });
+    }
+
+    const ip = request.headers.get("CF-Connecting-IP") ?? "unknown";
+    const isHuman = await verifyTurnstile(turnstileToken, ip);
+    if (!isHuman) {
+      return Response.json({ error: "Security verification failed. Please try again." }, { status: 403 });
+    }
+
+    const [emailHash, ipHash] = await Promise.all([
+      hashValue(`email:${email}`),
+      hashValue(`ip:${ip}`),
+    ]);
+    const oneHourAgo = "datetime('now', '-1 hour')";
+    const [emailAttempts, ipAttempts] = await Promise.all([
+      env.DB.prepare(`SELECT COUNT(*) AS count FROM signup_attempts WHERE subject_hash = ? AND created_at > ${oneHourAgo}`)
+        .bind(emailHash)
+        .first<{ count: number }>(),
+      env.DB.prepare(`SELECT COUNT(*) AS count FROM signup_attempts WHERE subject_hash = ? AND created_at > ${oneHourAgo}`)
+        .bind(ipHash)
+        .first<{ count: number }>(),
+    ]);
+
+    if ((emailAttempts?.count ?? 0) >= 3 || (ipAttempts?.count ?? 0) >= 10) {
+      return Response.json({ error: "Please wait an hour before requesting another confirmation email." }, { status: 429 });
+    }
+
+    await env.DB.batch([
+      env.DB.prepare("INSERT INTO signup_attempts (subject_hash) VALUES (?)").bind(emailHash),
+      env.DB.prepare("INSERT INTO signup_attempts (subject_hash) VALUES (?)").bind(ipHash),
+    ]);
 
     const token = createConfirmationToken();
     const tokenHash = await hashConfirmationToken(token);

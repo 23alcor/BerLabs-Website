@@ -7,12 +7,14 @@ export function createConfirmationToken() {
     .replaceAll("=", "");
 }
 
-export async function hashConfirmationToken(token: string) {
+export async function hashValue(value: string) {
   const digest = await crypto.subtle.digest(
     "SHA-256",
-    new TextEncoder().encode(token),
+    new TextEncoder().encode(value),
   );
   return Array.from(new Uint8Array(digest), (byte) =>
     byte.toString(16).padStart(2, "0"),
   ).join("");
 }
+
+export const hashConfirmationToken = hashValue;
