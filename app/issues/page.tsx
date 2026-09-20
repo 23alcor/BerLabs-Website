@@ -8,6 +8,7 @@ type GhostPost = {
 };
 
 const ghostApiUrl = "https://archive.berlabs.dev";
+const legacyGhostHost = "news.alcoberlabs.xyz";
 
 function formatIssueDate(date: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -16,6 +17,21 @@ function formatIssueDate(date: string) {
     timeZone: "UTC",
     year: "numeric",
   }).format(new Date(date));
+}
+
+function canonicalIssueUrl(url: string) {
+  try {
+    const issueUrl = new URL(url);
+
+    if (issueUrl.hostname === legacyGhostHost) {
+      issueUrl.protocol = "https:";
+      issueUrl.hostname = "archive.berlabs.dev";
+    }
+
+    return issueUrl.toString();
+  } catch {
+    return url;
+  }
 }
 
 async function getIssues(): Promise<GhostPost[]> {
@@ -56,7 +72,7 @@ export default async function IssuesPage() {
         {issues.length > 0 ? (
           <div className="mt-16 divide-y divide-[#b8c7bd]/20 border-y border-[#b8c7bd]/20">
             {issues.map((issue, index) => (
-              <a key={issue.id} className="group flex items-center justify-between gap-5 py-8 transition hover:bg-[#0b2220]" href={issue.url}>
+              <a key={issue.id} className="group flex items-center justify-between gap-5 py-8 transition hover:bg-[#0b2220]" href={canonicalIssueUrl(issue.url)}>
                 <div>
                   <p className="font-mono text-xs uppercase tracking-[0.14em] text-[#b8c7bd]">Issue {String(index + 1).padStart(3, "0")} · {formatIssueDate(issue.published_at)}</p>
                   <h2 className="mt-2 font-serif text-3xl tracking-[-0.04em] group-hover:text-[#9eff6b]">{issue.title}</h2>
