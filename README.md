@@ -8,7 +8,7 @@ The site introduces the newsletter, highlights the latest dispatch, gives reader
 
 - A responsive landing page at `/`
 - A latest-dispatch feature for the current issue
-- A subscribe call-to-action connected to the [BerLabs member portal](https://news.alcoberlabs.xyz/#/portal/signup)
+- A subscribe call-to-action connected to the [BerLabs member portal](https://archive.berlabs.dev/#/portal/signup)
 - An issue archive at `/issues`
 - BerLabs-specific page metadata and favicon
 
@@ -40,7 +40,7 @@ npm run lint      # Run ESLint
 
 - Update the latest dispatch shown on the home page in `app/page.tsx`.
 - Update the list of archived issues in `app/issues/page.tsx`.
-- Subscription and issue links currently point to `news.alcoberlabs.xyz`, where the newsletter is published through Ghost.
+- Subscription and issue links point to `archive.berlabs.dev`, where the newsletter is published through Ghost.
 
 The archive is currently curated in the site code. It is designed to be connected to Ghost so newly published issues can appear automatically.
 

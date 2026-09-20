@@ -7,7 +7,7 @@ type GhostPost = {
   url: string;
 };
 
-const ghostApiUrl = "https://news.alcoberlabs.xyz";
+const ghostApiUrl = "https://archive.berlabs.dev";
 
 function formatIssueDate(date: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -46,7 +46,7 @@ export default async function IssuesPage() {
     <main className="min-h-screen bg-[#071716] px-6 py-8 text-[#f6f1e6] md:px-10">
       <nav className="mx-auto flex max-w-5xl items-center justify-between border-b border-[#b8c7bd]/20 pb-6 font-mono text-xs uppercase tracking-[0.14em]">
         <Link className="text-[#9eff6b]" href="/">← BerLabs</Link>
-        <a className="text-[#b8c7bd] transition hover:text-[#9eff6b]" href="https://news.alcoberlabs.xyz/#/portal/signup">Subscribe</a>
+        <a className="text-[#b8c7bd] transition hover:text-[#9eff6b]" href="https://archive.berlabs.dev/#/portal/signup">Subscribe</a>
       </nav>
 
       <section className="mx-auto max-w-5xl py-20 md:py-28">
