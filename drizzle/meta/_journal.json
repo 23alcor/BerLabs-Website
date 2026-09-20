@@ -15,6 +15,13 @@
       "when": 1789921826955,
       "tag": "0001_nasty_chimera",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789948579888,
+      "tag": "0002_noisy_sumo",
+      "breakpoints": true
     }
   ]
 }

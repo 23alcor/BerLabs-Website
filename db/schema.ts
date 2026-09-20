@@ -27,3 +27,34 @@ export const signupAttempts = sqliteTable(
     ),
   ],
 );
+
+export const storyCandidates = sqliteTable(
+  "story_candidates",
+  {
+    id: text("id").primaryKey(),
+    source: text("source").notNull(),
+    title: text("title").notNull(),
+    url: text("url").notNull().unique(),
+    publishedAt: text("published_at"),
+    discoveredAt: text("discovered_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    importance: integer("importance").notNull(),
+    summary: text("summary").notNull(),
+    whyItMatters: text("why_it_matters").notNull(),
+    miniDraft: text("mini_draft").notNull(),
+    status: text("status").notNull().default("candidate"),
+    selectedForDate: text("selected_for_date"),
+    alertedAt: text("alerted_at"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_story_candidates_status_discovered_at").on(
+      table.status,
+      table.discoveredAt,
+    ),
+    index("idx_story_candidates_importance_discovered_at").on(
+      table.importance,
+      table.discoveredAt,
+    ),
+  ],
+);

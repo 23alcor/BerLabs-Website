@@ -1,9 +1,13 @@
 import { SubscribeForm } from "@/components/subscribe-form";
 import { env } from "cloudflare:workers";
+import { headers } from "next/headers";
+import EditorPage from "./editor/page";
 
 const currentIssue = { date: "September 14, 2026", title: "The first signal", description: "A concise field note on the ideas, tools, and shifts worth carrying forward." };
 
-export default function Home() {
+export default async function Home() {
+  const host = (await headers()).get("host")?.split(":")[0].toLowerCase();
+  if (host === "editor.berlabs.dev") return <EditorPage />;
   const turnstileSiteKey = env.TURNSTILE_SITE_KEY ?? "";
   return <main className="min-h-screen overflow-x-hidden bg-[#071716] text-[#f6f1e6]"><div className="pointer-events-none fixed inset-0 dot-field opacity-40" />
     <nav className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6 md:px-10"><a href="https://news.berlabs.dev/" className="flex items-center gap-2 font-mono text-sm font-bold tracking-[-0.08em]"><span className="grid h-8 w-8 place-items-center rounded-full border border-[#9eff6b] text-[#9eff6b]">B</span><span className="tracking-[-0.06em]">BERLABS</span></a><div className="flex items-center gap-5 font-mono text-xs uppercase tracking-[0.12em] text-[#b8c7bd]"><a className="transition hover:text-[#9eff6b]" href="https://news.berlabs.dev/issues">Issues</a><a className="rounded-full border border-[#9eff6b] px-4 py-2 text-[#9eff6b] transition hover:bg-[#9eff6b] hover:text-[#071716]" href="#subscribe">Subscribe</a></div></nav>
