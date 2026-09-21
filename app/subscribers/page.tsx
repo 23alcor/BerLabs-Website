@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-html-link-for-pages */
-
 import { desc } from "drizzle-orm";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
