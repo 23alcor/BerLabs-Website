@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getDb } from "@/db";
 import { storyCandidates } from "@/db/schema";
+import { ScheduleEditionButton } from "@/components/schedule-edition-button";
 
 export default async function MorningPage() {
   const host = (await headers()).get("host")?.split(":")[0].toLowerCase();
@@ -26,6 +27,8 @@ export default async function MorningPage() {
             <div className="rounded-xl border border-[#9eff6b]/30 bg-[#10251f] px-4 py-3 font-mono text-xs text-[#d4e0d3]">{stories.length} stories queued</div>
           </div>
         </header>
+
+        <ScheduleEditionButton disabled={stories.length === 0} />
 
         {stories.length === 0 ? (
           <section className="mt-10 rounded-2xl border border-dashed border-[#b7c6ba]/35 bg-[#0c1b17] p-10 text-center">

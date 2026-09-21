@@ -5,9 +5,10 @@ type Email = {
   subject: string;
   text: string;
   to: string;
+  deliveryTime?: Date;
 };
 
-export async function sendBerLabsEmail({ html, subject, text, to }: Email) {
+export async function sendBerLabsEmail({ html, subject, text, to, deliveryTime }: Email) {
   const apiKey = env.MAILGUN_API_KEY;
   const domain = env.MAILGUN_DOMAIN;
 
@@ -21,6 +22,7 @@ export async function sendBerLabsEmail({ html, subject, text, to }: Email) {
   body.set("subject", subject);
   body.set("text", text);
   body.set("html", html);
+  if (deliveryTime) body.set("o:deliverytime", deliveryTime.toUTCString().replace("GMT", "+0000"));
 
   const response = await fetch(`https://api.mailgun.net/v3/${domain}/messages`, {
     method: "POST",

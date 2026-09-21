@@ -76,3 +76,17 @@ export const storySources = sqliteTable(
     index("idx_story_sources_story_id").on(table.storyId),
   ],
 );
+
+export const scheduledEditions = sqliteTable(
+  "scheduled_editions",
+  {
+    id: text("id").primaryKey(),
+    scheduledFor: text("scheduled_for").notNull().unique(),
+    subject: text("subject").notNull(),
+    storyCount: integer("story_count").notNull(),
+    recipientCount: integer("recipient_count").notNull(),
+    status: text("status").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_scheduled_editions_scheduled_for").on(table.scheduledFor)],
+);
