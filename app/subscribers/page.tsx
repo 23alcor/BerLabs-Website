@@ -1,7 +1,8 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
+
 import { desc } from "drizzle-orm";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getDb } from "@/db";
 import { subscribers } from "@/db/schema";
 
@@ -31,7 +32,7 @@ export default async function SubscribersPage() {
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-col gap-5 border-b border-[#d4e0d3]/20 pb-7 md:flex-row md:items-end md:justify-between">
           <div>
-            <Link href="/" className="font-mono text-xs uppercase tracking-[0.22em] text-[#9eff6b] transition hover:text-[#d4e0d3]">← BerLabs desk</Link>
+            <a href="/" className="font-mono text-xs uppercase tracking-[0.22em] text-[#9eff6b] transition hover:text-[#d4e0d3]">← BerLabs desk</a>
             <h1 className="mt-4 font-serif text-5xl tracking-[-0.055em]">Subscribers</h1>
             <p className="mt-3 max-w-xl text-[#b7c6ba]">A private, newest-first view of everyone who signed up for BerLabs.</p>
           </div>
