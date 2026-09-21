@@ -57,10 +57,7 @@ export function EditorDashboard({ stories }: { stories: StoryCard[] }) {
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-[#9eff6b]">Private editor</p>
             <h1 className="mt-3 font-serif text-5xl tracking-[-0.055em]">BerLabs desk</h1>
             <p className="mt-3 max-w-xl text-[#b7c6ba]">Review the stories gathered for the next issue. Rank 1 means urgent; 5 means background signal.</p>
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs uppercase tracking-[0.16em] text-[#9eff6b]">
-              <a href="https://editor.berlabs.dev/subscribers" className="transition hover:text-[#d4e0d3]">View subscribers →</a>
-              <a href="https://editor.berlabs.dev/usage" className="transition hover:text-[#d4e0d3]">View usage →</a>
-            </div>
+            <a href="https://editor.berlabs.dev/subscribers" className="mt-4 inline-block font-mono text-xs uppercase tracking-[0.16em] text-[#9eff6b] transition hover:text-[#d4e0d3]">View subscribers →</a>
           </div>
           <div className="rounded-xl border border-[#9eff6b]/30 bg-[#10251f] px-4 py-3 font-mono text-xs text-[#d4e0d3]">
             {items.filter((item) => item.status === "selected" || item.status === "alerted").length} stories queued

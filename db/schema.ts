@@ -76,20 +76,3 @@ export const storySources = sqliteTable(
     index("idx_story_sources_story_id").on(table.storyId),
   ],
 );
-
-export const tokenUsage = sqliteTable(
-  "token_usage",
-  {
-    id: text("id").primaryKey(),
-    action: text("action").notNull(),
-    model: text("model").notNull(),
-    inputTokens: integer("input_tokens").notNull(),
-    outputTokens: integer("output_tokens").notNull(),
-    totalTokens: integer("total_tokens").notNull(),
-    occurredAt: text("occurred_at").notNull(),
-    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-  },
-  (table) => [
-    index("idx_token_usage_occurred_at").on(table.occurredAt),
-  ],
-);
