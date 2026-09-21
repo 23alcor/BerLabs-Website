@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 
 export type StoryCard = {
   id: string;
@@ -58,7 +57,7 @@ export function EditorDashboard({ stories }: { stories: StoryCard[] }) {
             <p className="font-mono text-xs uppercase tracking-[0.22em] text-[#9eff6b]">Private editor</p>
             <h1 className="mt-3 font-serif text-5xl tracking-[-0.055em]">BerLabs desk</h1>
             <p className="mt-3 max-w-xl text-[#b7c6ba]">Review the stories gathered for the next issue. Rank 1 means urgent; 5 means background signal.</p>
-            <Link href="/subscribers" prefetch={false} onClick={(event) => { event.preventDefault(); window.location.assign("/subscribers"); }} className="mt-4 inline-block font-mono text-xs uppercase tracking-[0.16em] text-[#9eff6b] transition hover:text-[#d4e0d3]">View subscribers →</Link>
+            <a href="https://editor.berlabs.dev/subscribers" className="mt-4 inline-block font-mono text-xs uppercase tracking-[0.16em] text-[#9eff6b] transition hover:text-[#d4e0d3]">View subscribers →</a>
           </div>
           <div className="rounded-xl border border-[#9eff6b]/30 bg-[#10251f] px-4 py-3 font-mono text-xs text-[#d4e0d3]">
             {items.filter((item) => item.status === "selected" || item.status === "alerted").length} stories queued
