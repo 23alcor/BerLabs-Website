@@ -13,6 +13,8 @@ export type StoryCard = {
   whyItMatters: string;
   miniDraft: string;
   status: string;
+  corroboration: "primary" | "corroborated" | "needs_confirmation";
+  sources: { source: string; title: string; url: string; isPrimary: boolean }[];
 };
 
 const statusLabels: Record<string, string> = {
@@ -74,9 +76,10 @@ export function EditorDashboard({ stories }: { stories: StoryCard[] }) {
             {items.map((story) => {
               const busy = working?.startsWith(`${story.id}:`);
               return <article key={story.id} className="rounded-2xl border border-[#d4e0d3]/15 bg-[#0c1b17] p-6">
-                <div className="flex items-start justify-between gap-4"><p className="font-mono text-xs uppercase tracking-[0.14em] text-[#9eff6b]">{story.source}</p><span className="rounded-full border border-[#d4e0d3]/20 px-2.5 py-1 font-mono text-xs">{statusLabels[story.status] ?? story.status}</span></div>
+                <div className="flex items-start justify-between gap-4"><p className="font-mono text-xs uppercase tracking-[0.14em] text-[#9eff6b]">{story.source}</p><span className="rounded-full border border-[#d4e0d3]/20 px-2.5 py-1 font-mono text-xs">{statusLabels[story.status] ?? story.status}</span></div><p className="mt-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#b7c6ba]">{story.corroboration.replace("_", " ")}</p>
                 <div className="mt-5 flex items-start gap-4"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#9eff6b] font-mono text-sm font-bold text-[#081311]">{story.importance}</span><div><h2 className="font-serif text-2xl leading-tight"><a className="transition hover:text-[#9eff6b]" href={story.url} target="_blank" rel="noreferrer">{story.title}</a></h2><p className="mt-1 font-mono text-xs text-[#819487]">{story.publishedAt ?? "Newly found"}</p></div></div>
                 <p className="mt-5 text-sm leading-6 text-[#d4e0d3]">{story.summary}</p>
+                <div className="mt-5"><p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[#9eff6b]">Sources · {story.sources.length}</p><ul className="mt-2 space-y-1 text-sm text-[#b7c6ba]">{story.sources.map((source) => <li key={source.url}><a className="transition hover:text-[#9eff6b]" href={source.url} target="_blank" rel="noreferrer">{source.source}</a>{source.isPrimary ? " · primary" : ""}</li>)}</ul></div>
                 <div className="mt-5 border-l border-[#9eff6b]/60 pl-4"><p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[#9eff6b]">Why it matters</p><p className="mt-2 text-sm leading-6 text-[#b7c6ba]">{story.whyItMatters}</p></div>
                 <div className="mt-5 rounded-xl bg-[#10251f] p-4"><p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[#9eff6b]">Mini draft</p><p className="mt-2 text-sm leading-6 text-[#d4e0d3]">{story.miniDraft}</p></div>
                 <div className="mt-6 flex flex-wrap gap-2"><button disabled={busy} onClick={() => updateStory(story.id, "selected")} className="rounded-full bg-[#9eff6b] px-4 py-2 font-mono text-xs font-semibold text-[#081311] disabled:opacity-50">Add to morning</button><button disabled={busy || story.importance !== 1} onClick={() => updateStory(story.id, "alerted")} className="rounded-full border border-[#9eff6b] px-4 py-2 font-mono text-xs text-[#9eff6b] disabled:cursor-not-allowed disabled:opacity-35">Approve urgent alert</button><button disabled={busy} onClick={() => updateStory(story.id, "dismissed")} className="rounded-full border border-[#d4e0d3]/25 px-4 py-2 font-mono text-xs text-[#b7c6ba] disabled:opacity-50">Dismiss</button></div>

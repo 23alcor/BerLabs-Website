@@ -7,5 +7,6 @@ declare namespace Cloudflare {
     SITE_ORIGIN?: string;
     TURNSTILE_SECRET?: string;
     TURNSTILE_SITE_KEY?: string;
+    EDITOR_INGEST_SECRET?: string;
   }
 }

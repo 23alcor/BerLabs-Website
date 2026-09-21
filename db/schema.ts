@@ -41,6 +41,7 @@ export const storyCandidates = sqliteTable(
     summary: text("summary").notNull(),
     whyItMatters: text("why_it_matters").notNull(),
     miniDraft: text("mini_draft").notNull(),
+    corroboration: text("corroboration").notNull().default("needs_confirmation"),
     status: text("status").notNull().default("candidate"),
     selectedForDate: text("selected_for_date"),
     alertedAt: text("alerted_at"),
@@ -56,5 +57,22 @@ export const storyCandidates = sqliteTable(
       table.importance,
       table.discoveredAt,
     ),
+  ],
+);
+
+export const storySources = sqliteTable(
+  "story_sources",
+  {
+    id: text("id").primaryKey(),
+    storyId: text("story_id").notNull(),
+    source: text("source").notNull(),
+    title: text("title").notNull(),
+    url: text("url").notNull().unique(),
+    publishedAt: text("published_at"),
+    isPrimary: integer("is_primary", { mode: "boolean" }).notNull().default(false),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_story_sources_story_id").on(table.storyId),
   ],
 );
