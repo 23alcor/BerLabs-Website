@@ -1,6 +1,6 @@
 import { env } from "cloudflare:workers";
 import { getDb } from "@/db";
-import { storyCandidates, storySources } from "@/db/schema";
+import { storyCandidates, storySources, tokenUsage } from "@/db/schema";
 
 type IncomingSource = { id: string; source: string; title: string; url: string; publishedAt?: string | null; isPrimary?: boolean };
 type IncomingStory = {
@@ -8,6 +8,10 @@ type IncomingStory = {
   importance: number; summary: string; whyItMatters: string; miniDraft: string;
   corroboration: "primary" | "corroborated" | "needs_confirmation";
   sources: IncomingSource[];
+};
+type IncomingUsage = {
+  id: string; action: string; model: string; inputTokens: number; outputTokens: number;
+  totalTokens: number; occurredAt: string;
 };
 
 function isValidStory(story: IncomingStory) {
@@ -23,14 +27,25 @@ function isValidStory(story: IncomingStory) {
     Array.isArray(story.sources) && story.sources.length > 0 && story.sources.length <= 12;
 }
 
+function isValidUsage(event: IncomingUsage) {
+  return typeof event.id === "string" && event.id.length <= 128 &&
+    typeof event.action === "string" && event.action.length <= 120 &&
+    typeof event.model === "string" && event.model.length <= 160 &&
+    Number.isInteger(event.inputTokens) && event.inputTokens >= 0 &&
+    Number.isInteger(event.outputTokens) && event.outputTokens >= 0 &&
+    Number.isInteger(event.totalTokens) && event.totalTokens === event.inputTokens + event.outputTokens &&
+    typeof event.occurredAt === "string" && !Number.isNaN(Date.parse(event.occurredAt));
+}
+
 export async function POST(request: Request) {
   const suppliedSecret = request.headers.get("x-editor-ingest-secret");
   if (!env.EDITOR_INGEST_SECRET || suppliedSecret !== env.EDITOR_INGEST_SECRET) {
     return Response.json({ error: "Unauthorized ingest request." }, { status: 401 });
   }
 
-  const body = await request.json() as { stories?: IncomingStory[] };
-  if (!Array.isArray(body.stories) || body.stories.length > 50 || !body.stories.every(isValidStory)) {
+  const body = await request.json() as { stories?: IncomingStory[]; usage?: IncomingUsage[] };
+  if (!Array.isArray(body.stories) || body.stories.length > 50 || !body.stories.every(isValidStory) ||
+      (body.usage !== undefined && (!Array.isArray(body.usage) || body.usage.length > 50 || !body.usage.every(isValidUsage)))) {
     return Response.json({ error: "Invalid story payload." }, { status: 400 });
   }
 
@@ -60,5 +75,12 @@ export async function POST(request: Request) {
       });
     }
   }
-  return Response.json({ accepted: body.stories.length });
+  for (const event of body.usage ?? []) {
+    await db.insert(tokenUsage).values({
+      id: event.id, action: event.action, model: event.model,
+      inputTokens: event.inputTokens, outputTokens: event.outputTokens,
+      totalTokens: event.totalTokens, occurredAt: event.occurredAt,
+    }).onConflictDoNothing();
+  }
+  return Response.json({ accepted: body.stories.length, usageRecorded: body.usage?.length ?? 0 });
 }
