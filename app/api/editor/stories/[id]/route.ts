@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { storyCandidates } from "@/db/schema";
 
-const allowedStatuses = new Set(["selected", "dismissed", "alerted"]);
+const allowedStatuses = new Set(["candidate", "selected", "dismissed", "alerted"]);
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   const host = request.headers.get("host")?.split(":")[0].toLowerCase();

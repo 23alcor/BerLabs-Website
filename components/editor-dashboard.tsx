@@ -24,12 +24,36 @@ const statusLabels: Record<string, string> = {
   dismissed: "Not using",
 };
 
+function EditorialList({ title, description, stories, onReturn, working }: {
+  title: string;
+  description: string;
+  stories: StoryCard[];
+  onReturn: (id: string) => void;
+  working: string | null;
+}) {
+  if (!stories.length) return null;
+
+  return <section className="rounded-2xl border border-[#d4e0d3]/15 bg-[#0c1b17] p-5">
+    <div className="flex items-start justify-between gap-4 border-b border-[#d4e0d3]/15 pb-4">
+      <div><p className="font-mono text-xs uppercase tracking-[0.16em] text-[#9eff6b]">{title}</p><p className="mt-1 text-sm text-[#b7c6ba]">{description}</p></div>
+      <span className="rounded-full bg-[#10251f] px-2.5 py-1 font-mono text-xs text-[#d4e0d3]">{stories.length}</span>
+    </div>
+    <ul className="divide-y divide-[#d4e0d3]/10">
+      {stories.map((story) => <li key={story.id} className="flex items-start gap-3 py-4">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#9eff6b] font-mono text-xs font-bold text-[#081311]">{story.importance}</span>
+        <div className="min-w-0 flex-1"><a href={story.url} target="_blank" rel="noreferrer" className="font-serif text-lg leading-tight transition hover:text-[#9eff6b]">{story.title}</a><p className="mt-1 font-mono text-[11px] uppercase tracking-[0.12em] text-[#819487]">{story.source}</p></div>
+        <button type="button" disabled={working?.startsWith(`${story.id}:`)} onClick={() => onReturn(story.id)} className="shrink-0 rounded-full border border-[#d4e0d3]/25 px-3 py-1.5 font-mono text-[11px] text-[#b7c6ba] transition hover:border-[#9eff6b] hover:text-[#9eff6b] disabled:opacity-50">Return to review</button>
+      </li>)}
+    </ul>
+  </section>;
+}
+
 export function EditorDashboard({ stories }: { stories: StoryCard[] }) {
   const [items, setItems] = useState(stories);
   const [working, setWorking] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
 
-  async function updateStory(id: string, status: "selected" | "dismissed" | "alerted") {
+  async function updateStory(id: string, status: "candidate" | "selected" | "dismissed" | "alerted") {
     setWorking(`${id}:${status}`);
     setNotice("");
     try {
@@ -41,13 +65,18 @@ export function EditorDashboard({ stories }: { stories: StoryCard[] }) {
       const payload = (await response.json()) as { error?: string; story?: { status: string } };
       if (!response.ok || !payload.story) throw new Error(payload.error ?? "Could not update this story.");
       setItems((current) => current.map((story) => story.id === id ? { ...story, status: payload.story!.status } : story));
-      setNotice(status === "alerted" ? "Alert approval recorded. Sending will be connected when the Telegram bot and mail sender are ready." : "Saved.");
+      setNotice(status === "alerted" ? "Alert approval recorded. Sending will be connected when the Telegram bot and mail sender are ready." : status === "candidate" ? "Returned to review." : "Saved.");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Could not update this story.");
     } finally {
       setWorking(null);
     }
   }
+
+  const candidates = items.filter((item) => item.status === "candidate");
+  const morningStories = items.filter((item) => item.status === "selected");
+  const alertedStories = items.filter((item) => item.status === "alerted");
+  const dismissedStories = items.filter((item) => item.status === "dismissed");
 
   return (
     <main className="min-h-screen bg-[#081311] px-5 py-8 text-[#f5f1e8] md:px-10">
@@ -75,9 +104,14 @@ export function EditorDashboard({ stories }: { stories: StoryCard[] }) {
             <h2 className="mt-3 font-serif text-3xl">The desk is ready for its first collection.</h2>
             <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-[#b7c6ba]">The next step is connecting the hourly collector. When it runs, each story will arrive here with a summary, why-it-matters note, draft, and importance score.</p>
           </section>
+        ) : candidates.length === 0 ? (
+          <section className="mt-8 rounded-2xl border border-dashed border-[#b7c6ba]/35 bg-[#0c1b17] p-8 text-center">
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#9eff6b]">Review clear</p>
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-[#b7c6ba]">New stories will appear here after the next collection. Your existing decisions are organized below.</p>
+          </section>
         ) : (
           <section className="mt-8 grid gap-5 lg:grid-cols-2">
-            {items.map((story) => {
+            {candidates.map((story) => {
               const busy = working?.startsWith(`${story.id}:`);
               return <article key={story.id} className="rounded-2xl border border-[#d4e0d3]/15 bg-[#0c1b17] p-6">
                 <div className="flex items-start justify-between gap-4"><p className="font-mono text-xs uppercase tracking-[0.14em] text-[#9eff6b]">{story.source}</p><span className="rounded-full border border-[#d4e0d3]/20 px-2.5 py-1 font-mono text-xs">{statusLabels[story.status] ?? story.status}</span></div><p className="mt-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#b7c6ba]">{story.corroboration.replace("_", " ")}</p>
@@ -91,6 +125,15 @@ export function EditorDashboard({ stories }: { stories: StoryCard[] }) {
             })}
           </section>
         )}
+
+        {items.length > 0 && <section className="mt-10">
+          <div className="mb-5"><p className="font-mono text-xs uppercase tracking-[0.18em] text-[#9eff6b]">Editorial lists</p><h2 className="mt-2 font-serif text-3xl">Stories you’ve already decided on</h2></div>
+          <div className="grid gap-5 lg:grid-cols-3">
+            <EditorialList title="Morning edition" description="Included in the next scheduled email." stories={morningStories} onReturn={(id) => updateStory(id, "candidate")} working={working} />
+            <EditorialList title="Urgent alerts" description="Approved as an important alert." stories={alertedStories} onReturn={(id) => updateStory(id, "candidate")} working={working} />
+            <EditorialList title="Dismissed" description="Kept out of the morning edition." stories={dismissedStories} onReturn={(id) => updateStory(id, "candidate")} working={working} />
+          </div>
+        </section>}
       </div>
     </main>
   );
